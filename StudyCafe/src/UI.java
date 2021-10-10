@@ -1,5 +1,6 @@
 // Studycafe UI class
 import java.util.InputMismatchException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UI {
@@ -28,70 +29,64 @@ public class UI {
                             // 몇인용 좌석?
                             System.out.print("이용할 좌석이 몇인용 좌석인지 입력하세요: ");
                             int size = sc.nextInt();
-                            boolean moreCheckIn = false;
+                            int falseCount = 0;
 
-                            // 가능한 좌석 출력
-                            Room availableRoom[] = admin.searchAvailableRoom(size);	// Admin 클래스의 searchAvailableRoom 메소드 사용해서 반환받은 Room 배열을 availableRoom[]에 대입
-                           
-                            for (int i = 0; i < admin.getLastRoomNumber(); i++) {                       // 마지막 방번호인 assignNumber까지 반복
-                                Room currentAvailableRoom = availableRoom[i];
-                                if (currentAvailableRoom == null) {
-                                    continue;															// currentAvailableRoom이 비어있다면 다음 반복으로 continue
-                                }
-                                else {																	// currentAvailableRoom이 존재한다면
-                                    System.out.println(i + "번: " + currentAvailableRoom.getRoomName());// 방 이름과 번호 출력
+                            // 이용 가능여부 boolean ArrayList로 받아오기
+                            ArrayList<Boolean> available = admin.searchAvailableRoom(size);
+                            
+                            for (int i = 0; i < admin.getLastRoomNumber(); i++) {
+                            	// 이용 가능한 방이라면 정보 출력
+                                if (available.get(i)) {
+                                	Room currentAvailableRoom = admin.getRoom(i);
+                                	System.out.println(i + "번: " + currentAvailableRoom.getRoomName());
                                     System.out.println("시간당 요금: " + currentAvailableRoom.getChargePerHour());
                                     System.out.println("10분당 추가요금: " + currentAvailableRoom.getSurcharge());
                                     System.out.println();
                                 }
-                            }
-                            System.out.println("사용 가능합니다.");
-
-                            // 좌석 선택
-                            System.out.print("좌석 번호를 선택해주세요: ");
-                            int roomNo = sc.nextInt();
-                            
-                            // 사용자가 입력한 size가 좌석 번호의 size(occupancy)와 불일치할 때 case문 빠져나가기
-                            if (admin.getRoom()[roomNo] == null) {
-                            	System.out.println(roomNo + "번 좌석은 없습니다.");
-                            	break;
-                            }
-                            else if (admin.getRoom()[roomNo].getOccupancy() != size) {
-                            	System.out.println("해당 번호의 좌석은 " + size + "인석이 아닙니다.");
-                            	break;
-                            }
-                            
-                            // 2인용 좌석 이상이면 체크인 반복 용이하도록
-                            do {
-                                // 정보 입력받기
-                                // 이름 입력받기
-                                System.out.print("이름: ");
-                                String userName = sc.next();
-
-                                // 전화번호(사용자번호) 입력받기
-                                System.out.print("전화번호: ");
-                                String userNo = sc.next();
-
-                                // 입력받은 정보로 User 객체 만들고, 체크인하기
-                                admin.checkIn(userName, userNo, roomNo);
-                                
-                                // 추가인원 있는지 검사(while문, 없으면 조건 false로 바꾸기)
-                                if (size > 2) {
-                                	System.out.print("추가 인원이 있습니까?(y/Y 또는 아무거나): ");
-                                    String more = sc.next();
-                                    if (more.equals("y") || more.equals("Y")) moreCheckIn = true;
-                                    else moreCheckIn = false;
+                                else {
+                                	falseCount++;
+                                	continue;
                                 }
-                            } while (size > 2 && moreCheckIn);
+                            }
+                            
+                            // 사용 가능한 방이 있는 경우
+                            if (falseCount != admin.getLastRoomNumber()) {
+                            	System.out.println("사용 가능합니다.");
+	
+	                            // 좌석 선택
+	                            System.out.print("좌석 번호를 선택해주세요: ");
+	                            int roomNo = sc.nextInt();
+	                            
+	                            // 사용자가 입력한 좌석 번호가 배정 불가능한 경우
+	                            if (roomNo > admin.getLastRoomNumber()) {
+	                            	System.out.println(roomNo + "번 좌석은 없습니다.");
+	                            	break;
+	                            }
+	                            else if (admin.getRoom(roomNo).getOccupancy() != size) {
+	                            	System.out.println("해당 번호의 좌석은 " + size + "인석이 아닙니다.");
+	                            	break;
+	                            }
+	                            
+	                            // 정보 입력받기
+	                            System.out.print("이름: ");
+	                            String userName = sc.next();
+	                            System.out.print("전화번호: ");
+	                            String userNo = sc.next();
+	
+	                            // 입력받은 정보로 User 객체 만들고, 체크인하기
+	                            admin.checkIn(userName, userNo, roomNo);
+                            }
+                            // 사용 가능한 방이 하나도 없는 경우
+                            else {
+                            	System.out.println("사용 가능한 방이 없습니다.");
+                            }
                             
                             break; // finish 1. 사용자 > 1. 좌석 선택(체크인)
                             
                         case 2: // 1. 사용자 > 2. 이용완료(체크아웃)
-                            // 이름 입력
+                        	// 체크아웃을 위한 정보 입력
                             System.out.print("이름: ");
                             String userName = sc.next();
-                            
-                            // 전화번호 입력
                             System.out.print("전화번호: ");
                             String userNo = sc.next();
 
@@ -123,27 +118,24 @@ public class UI {
                             switch (cleanMenu) {
                                 case 1: // 2. 관리자 > 1. 방 청소 > 1. 청소해야할 방 조회
                                     System.out.print("청소해야하는 방: ");
-                                    Room roomsToClean[] = admin.findRoomsToClean();
-                                    
-                                    // roomsToClean이 비어있는지 확인
-                                    boolean noRoomsToclean = true;
-                                    for (int i = 0; i < roomsToClean.length; i++) {
-                                    	if (roomsToClean[i] != null) noRoomsToclean = false;
-                                    }
-                                    
-                                    // dirtyRooms 상태 따라서 출력
-                                    if (noRoomsToclean) {
-                                        System.out.println("null");
-                                    }
-                                    else {
-                                        int lastRoomNumber = admin.getLastRoomNumber();
-                                        for (int i = 0; i < lastRoomNumber; i++) {
-                                            if (roomsToClean[i] == null) continue;
-                                            else {
-                                                System.out.println(roomsToClean[i].getOccupancy() + "인석 " + i + "번 방");
-                                            }
+                                    // 청소가 필요한 인덱스의 방은 true로 설정한 배열 반환
+                                    ArrayList<Boolean> roomsToClean = admin.findRoomsToClean();
+                                    int falseCount = 0;
+
+                                    int lastRoomNumber = admin.getLastRoomNumber();
+                                    for (int i = 0; i < lastRoomNumber; i++) {
+                                        if (!roomsToClean.get(i)) {
+                                        	falseCount++;
+                                        	continue;
+                                        }
+                                        else {
+                                            System.out.println(i + "번 방");
                                         }
                                     }
+                                    
+                                    if (falseCount == lastRoomNumber)
+                                    	System.out.println("null");
+                                    
                                     break;
 
                                 case 2: // 2. 관리자 > 1. 방 청소 > 2. 청소한 방 입력
@@ -177,27 +169,26 @@ public class UI {
                             
                             break; // finish 2. 관리자 > 1. 방청소
                             
-                        case 2: // 2. 관리자 > 2. 방 전체 상태 조회
+                        case 2: // 2. 관리자 > 2. 방 전체 조회
                             int lastRoomNumber = admin.getLastRoomNumber();
-                            Room roomArray[] = admin.getRoom();
                             for (int i = 0; i < lastRoomNumber; i++) {
-                                Room room = roomArray[i];
+                                Room room = admin.getRoom(i);
                                 if(room != null) {
                                     System.out.println("----room" + i + ": " + room.getRoomName() + "-----");
                                     System.out.println("occupancy: " + room.getOccupancy());
                                     System.out.println("ChargePerHour: " + room.getChargePerHour());
                                     System.out.println("Surcharge: " + room.getSurcharge());
-                                    System.out.println("UserCount: " + room.getUserCount());
+                                    System.out.println("Empty: " + room.isEmpty());
                                     System.out.println("available: " + room.available());
                                     // checkInTime 출력
                                     System.out.print("check-in time: ");
-                                    if (room.getUserCount() == 0)		// 방이 비어있는 경우
+                                    if (room.isEmpty())
                                     	System.out.println("null");
-                                    else								// 방이 사용중인 경우
+                                    else
                                     	System.out.println(room.getCheckInTime());
                                     // users 출력
                                     System.out.print("User: ");
-                                    if (room.getUserCount() == 0)		// 방이 비어있는 경우
+                                    if (room.isEmpty())		// 방이 비어있는 경우
                                     	System.out.println("null");
                                     else {								// 방이 사용중인 경우
                                 		User currentUser = room.getUser();
@@ -208,7 +199,7 @@ public class UI {
                                 }
                                 else continue;
                             }
-                            break; // finish 2. 관리자 > 2. 방 전체 상태 조회
+                            break; // finish 2. 관리자 > 2. 방 전체 조회
                             
                         case 3: // 2. 관리자 > 3. 수익 조회
                         	System.out.println("수익을 조회합니다.");
@@ -230,7 +221,7 @@ public class UI {
                         		System.out.print("조회하려는 달을 입력하세요(1~12): ");
                         		month = sc.nextInt();
                         		
-                        		System.out.println(month + "월의 수익: " + admin.getMonthlyIncome(month - 1));
+                        		System.out.println(month + "월의 수익: " + admin.getMonthlyIncome(month - 1) + "원");
                         		break;
                         		
                     		default:
