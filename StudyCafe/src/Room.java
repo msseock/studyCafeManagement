@@ -14,7 +14,7 @@ public class Room {
 //	private int userCount;					// 방에 몇 명이 들어와있는지 확인용
 	private boolean empty;					// 비어있는지 여부 반환 용도.
 	private boolean clean;					// 방이 깨끗한 상태인지 확인용
-	private long checkInTime;				// 입실 시간
+//	private long checkInTime;				// 입실 시간
 	private Calendar checkInDate;			// 입실 날짜
 //	private long checkOutTime;				// 퇴실 시간(2인 이상인 스터디룸에 이용하기 위해) (없앨것임)
 //	private Calendar checkOutDate;			// 퇴실 날짜(이것도 없앨거임)
@@ -38,7 +38,16 @@ public class Room {
 	public void checkIn(String userName, String userNo, int roomNo) throws Exception {
 		if (empty) {
 				checkInDate = new GregorianCalendar();		// 체크인 시간 기록
-				checkInTime = checkInDate.getTimeInMillis();
+				
+				user = new User(userName, userNo, roomNo);	// user객체 추가
+				empty = false;	// empty를 false로
+		} else throw new Exception("이용 가능 정원을 초과했습니다.");	
+	} // finish checkIn()
+	
+	// override
+	public void checkIn(String userName, String userNo, int roomNo, Calendar checkInTime) throws Exception {
+		if (empty) {
+				this.checkInDate = checkInTime;		// 체크인 시간 기록
 				
 				user = new User(userName, userNo, roomNo);	// user객체 추가
 				empty = false;	// empty를 false로
@@ -77,6 +86,7 @@ public class Room {
 			long checkOutTime = Calendar.getInstance().getTimeInMillis(); // 이것만 있으면 윗줄 두 줄은 필요없을 것 같다
 
 			// 사용시간 계산
+			long checkInTime = checkInDate.getTimeInMillis();
 			long totalMinute = checkOutTime - checkInTime;
 			checkInTime = 0;							// 계산 후 0으로 초기화
 			totalMinute = (totalMinute / (1000 * 60));	// 총사용시간 n분 계산
@@ -226,12 +236,16 @@ public class Room {
 		return empty && clean;	// 방이 비어있고, 깨끗하다면 true 리턴
 	}
 	
-	// isEmpty()
+	/* empty getter, setter */
 	public boolean isEmpty() {
 		return empty;
 	}
 	
-	// isClean 메소드
+	public void setEmpty(boolean b) {
+		empty = b;
+	}
+	
+	/* clean getter, setter */
 	public boolean isClean() {
 		return clean;	// clean값을 반환
 	}
@@ -240,5 +254,66 @@ public class Room {
 	public void cleanRoom() {
 		clean = true;	// clean을 true로 바꿔줌
 	}
+	
+	public void setClean(boolean b) {
+		clean = b;
+	}
+	
+	// 내가 수정한 writeRoomInfo
+	public void writeRoomInfo(DataOutputStream dataOut) throws Exception {
+		// roomName(이름)[0]:roomName.length -> String roomName
+		// readString()이 없으므로 String의 길이 출력 후 String 출력
+		dataOut.writeInt(roomName.length());
+		for(int i = 0; i < roomName.length(); i++) {
+			dataOut.writeChar(roomName.toCharArray()[i]);
+		}
+
+		// capacity(최대인원수)[1]: int occupancy
+		dataOut.writeInt(occupancy);
+
+		// bill(시간당 가격) [2]: int chargePerHour, [3]: int surcharge
+		dataOut.writeInt(chargePerHour);
+		dataOut.writeInt(surcharge);
+
+
+		// isUsed(사용중인지 체크)[4]: boolean empty, [5]: boolean clean
+		dataOut.writeBoolean(empty);
+		dataOut.writeBoolean(clean);
+
+		// 이 밑부터는 사용중이면 있는 항목들(read할 때 User 객체 만들기 위해 필요함)
+		if (!empty) {
+			/*
+			 * user 정보
+			 * [6]: user.getUserName().length -> String user.getUserName()
+			 * [7]: user.getUserNo().length -> String user.getUserNo()
+			 * [8]: int user.getRoomNo()
+			 */
+			String userName = user.getUserName();
+			dataOut.writeInt(userName.length());
+			for(int i = 0; i < userName.length(); i++) {
+				dataOut.writeChar(userName.toCharArray()[i]);
+			}
+			
+			dataOut.writeInt(user.getUserNo().length());
+			dataOut.writeBytes(user.getUserNo());
+			
+			dataOut.writeInt(user.getRoomNo());
+
+			/*
+			 * checkInDate(사용 시작 시간: GregorianCalendar 생성자를 위한 매개변수 받아오기)
+			 * [9]: int year
+			 * [10]: int month
+			 * [11]: int dayOfMonth
+			 * [12]: int hourOfDay
+			 * [13]: int minute
+			 */
+			dataOut.writeInt(checkInDate.get(Calendar.YEAR));
+			dataOut.writeInt(checkInDate.get(Calendar.MONTH));
+			dataOut.writeInt(checkInDate.get(Calendar.DATE));
+			dataOut.writeInt(checkInDate.get(Calendar.HOUR_OF_DAY));
+			dataOut.writeInt(checkInDate.get(Calendar.MINUTE));
+		}
+	}
+
 	
 } // finish room class
