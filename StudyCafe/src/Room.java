@@ -6,18 +6,14 @@ import java.io.*;
 
 public class Room {
 	// 필드
-	private User user;			// User 객체를 저장할 배열 생성. 크기 조정 가능하도록 처음에는 null로 설정
 	private String roomName;				// 방 이름
 	private int occupancy;					// 방의 정원(최대인원수)
 	private int chargePerHour;				// 1시간당 요금
 	private int surcharge;					// 10분당 추가요금
-//	private int userCount;					// 방에 몇 명이 들어와있는지 확인용
-	private boolean empty;					// 비어있는지 여부 반환 용도.
-	private boolean clean;					// 방이 깨끗한 상태인지 확인용
-//	private long checkInTime;				// 입실 시간
+	private boolean clean;					// 방이 깨끗한 상태인지 확인
+	private boolean empty;					// 비어있는지 여부
+	private User user;						// User 객체
 	private Calendar checkInDate;			// 입실 날짜
-//	private long checkOutTime;				// 퇴실 시간(2인 이상인 스터디룸에 이용하기 위해) (없앨것임)
-//	private Calendar checkOutDate;			// 퇴실 날짜(이것도 없앨거임)
 	
 	
 	// 메소드
@@ -28,8 +24,7 @@ public class Room {
 		this.occupancy = occupancy;				// 정원 설정
 		this.chargePerHour = chargePerHour;		// 시간당 요금 설정
 		this.surcharge = surcharge;				// 추가요금 설정
-//		userCount = 0;							// 기본값으로 userCount를 0으로 설정
-		empty = true;
+		empty = true;							// 비어있음
 		clean = true;							// 기본값으로 clean을 0으로 설정
 	}
 
@@ -40,46 +35,27 @@ public class Room {
 				checkInDate = new GregorianCalendar();		// 체크인 시간 기록
 				
 				user = new User(userName, userNo, roomNo);	// user객체 추가
-				empty = false;	// empty를 false로
+				empty = false;
+				clean = false;
 		} else throw new Exception("이용 가능 정원을 초과했습니다.");	
 	} // finish checkIn()
 	
 	// override
-	public void checkIn(String userName, String userNo, int roomNo, Calendar checkInTime) throws Exception {
+	public void checkIn(String userName, String userNo, int roomNo, Calendar checkInDate) throws Exception {
 		if (empty) {
-				this.checkInDate = checkInTime;		// 체크인 시간 기록
+				this.checkInDate = checkInDate;		// 체크인 시간 기록
 				
 				user = new User(userName, userNo, roomNo);	// user객체 추가
 				empty = false;	// empty를 false로
 		} else throw new Exception("이용 가능 정원을 초과했습니다.");	
 	} // finish checkIn()
-	
-	
-//	// (기존)체크아웃 메소드
-//	public void checkOut() throws Exception {
-//		if (userCount > 0) {	// 체크아웃은 한 번만 시행
-//			// 필드 초기화
-//			userCount = 0;
-//			empty = true;
-//			clean = false;		// 사용자가 사용했기 때문에 청소를 위해 clean을 false로 바꾼다
-//			
-//			// checkOutTime 기록
-//			checkOutDate = Calendar.getInstance();
-//			checkOutTime = checkOutDate.getTimeInMillis();
-//			
-//			// users 배열을 비워준다.
-//			user = null;
-//		} else throw new Exception("이미 체크아웃하였습니다.");
-//	} // finish checkOut()
-	
-	
 
+	
 	// 체크아웃 메소드(수정: pay 과정까지 추가)
 	public int checkOut() throws Exception {
 		if (!empty) {	// 체크아웃은 한 번만 시행
 			// 필드 초기화
 			empty = true;
-			clean = false;
 			user = null;
 			
 			// checkOutTime 기록
@@ -259,44 +235,36 @@ public class Room {
 		clean = b;
 	}
 	
-	// 내가 수정한 writeRoomInfo
+	// room 데이터필드 출력
 	public void writeRoomInfo(DataOutputStream dataOut) throws Exception {
-		// roomName(이름)[0]:roomName.length -> String roomName
-		// readString()이 없으므로 String의 길이 출력 후 String 출력
-		dataOut.writeInt(roomName.length());
-		for(int i = 0; i < roomName.length(); i++) {
-			dataOut.writeChar(roomName.toCharArray()[i]);
-		}
-
-		// capacity(최대인원수)[1]: int occupancy
+		/*
+		 * [0]: String roomName
+		 * [1]: int occupancy
+		 * [2]: int chargePerHour
+		 * [3]: int surcharge
+		 */
+		dataOut.writeUTF(roomName);
 		dataOut.writeInt(occupancy);
-
-		// bill(시간당 가격) [2]: int chargePerHour, [3]: int surcharge
 		dataOut.writeInt(chargePerHour);
 		dataOut.writeInt(surcharge);
 
 
-		// isUsed(사용중인지 체크)[4]: boolean empty, [5]: boolean clean
-		dataOut.writeBoolean(empty);
+		// [4]: boolean clean
 		dataOut.writeBoolean(clean);
+		
+		// [5]: boolean empty
+		dataOut.writeBoolean(empty);
 
-		// 이 밑부터는 사용중이면 있는 항목들(read할 때 User 객체 만들기 위해 필요함)
+		// 사용중이면 User 정보 출력
 		if (!empty) {
 			/*
 			 * user 정보
-			 * [6]: user.getUserName().length -> String user.getUserName()
-			 * [7]: user.getUserNo().length -> String user.getUserNo()
+			 * [6]: String user.getUserName()
+			 * [7]: String user.getUserNo()
 			 * [8]: int user.getRoomNo()
 			 */
-			String userName = user.getUserName();
-			dataOut.writeInt(userName.length());
-			for(int i = 0; i < userName.length(); i++) {
-				dataOut.writeChar(userName.toCharArray()[i]);
-			}
-			
-			dataOut.writeInt(user.getUserNo().length());
-			dataOut.writeBytes(user.getUserNo());
-			
+			dataOut.writeUTF(user.getUserName());
+			dataOut.writeUTF(user.getUserNo());
 			dataOut.writeInt(user.getRoomNo());
 
 			/*
@@ -314,6 +282,5 @@ public class Room {
 			dataOut.writeInt(checkInDate.get(Calendar.MINUTE));
 		}
 	}
-
 	
 } // finish room class

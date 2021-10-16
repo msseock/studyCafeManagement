@@ -1,76 +1,78 @@
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.io.*;
 
 public class Admin {
 	// 필드
 	private ArrayList<Room> room = new ArrayList<Room>();
-	private ArrayList<Integer> income = new ArrayList<Integer>(12*31);
+	private ArrayList<Integer> income = new ArrayList<Integer>();	
 	
-	// 생성자
-	Admin(DataInputStream dataIn) throws Exception, EOFException {
-		int roomCount = 0;
-		while(true) {
-			// [0]:int roomName.length -> char[] roomName
-//			DataInputStream in = new DataInputStream (input);
-			int length = dataIn.readInt();
-			char[] charArray = new char[length];
-			for (int i = 0; i < length; i++) {
-				charArray[i] = dataIn.readChar();
-			}
-			String roomName = new String(charArray);
-			
-			// [1]: int occupancy
-			int occupancy = dataIn.readInt();
-			
-			// [2]: int chargePerHour
-			int chargePerHour = dataIn.readInt();
-			
-			// [3]: int surcharge
-			int surcharge = dataIn.readInt();
-			
-			room.add(roomCount, new Room(roomName, occupancy, chargePerHour, surcharge));
-			
-			// [4]: boolean empty
-			boolean empty = dataIn.readBoolean();
-			room.get(roomCount).setEmpty(empty);
-			// [5]: boolean clean
-			boolean clean = dataIn.readBoolean();
-			room.get(roomCount).setEmpty(clean);
-			
-			
-			/* !empty일때 실행시킬 것들 */
-			if (!empty) {
+	// 생성자(for 입력)
+	Admin(DataInputStream dataIn) throws Exception {
+		// 입력을 위한 변수 선언
+		String roomName, userName, userNo;
+		int occupancy, chargePerHour, surcharge, userRoomNo;
+		boolean empty;
+		try {
+			while(true) {
 				/*
-				* user 정보
-				* [6]: int user.getUserName().length -> char[] user.getUserName()
-				* [7]: int user.getUserNo().length -> char[] user.getUserNo()
-				* [8]: int user.getRoomNo()
-				*/
-				
-				
-				/*
-				 * checkInDate(사용 시작 시간: GregorianCalendar 생성자를 위한 매개변수 받아오기)
-				 * [9]: int year
-				 * [10]: int month
-				 * [11]: int dayOfMonth
-				 * [12]: int hourOfDay
-				 * [13]: int minute
+				 * [0]: String roomName
+				 * [1]: int occupancy
+				 * [2]: int chargePerHour
+				 * [3]: int surcharge
 				 */
-			}
-			
-			
+				roomName = dataIn.readUTF();
+				occupancy = dataIn.readInt();
+				chargePerHour = dataIn.readInt();
+				surcharge = dataIn.readInt();
+				
+				room.add(new Room(roomName, occupancy, chargePerHour, surcharge));
+				
+				// [4]: boolean clean
+				room.get(room.size()-1).setClean(dataIn.readBoolean());
+				
+				// [5]: boolean empty
+				empty = dataIn.readBoolean();
+				
+				// 사용중이면 User 정보 입력
+				if (!empty) {
+					/*
+					* user 정보
+					* [6]: String user.getUserName()
+					* [7]: String user.getUserNo()
+					* [8]: int user.getRoomNo()
+					*/
+					userName = dataIn.readUTF();
+					userNo = dataIn.readUTF();
+					userRoomNo = dataIn.readInt();
+					
+					/*
+					 * checkInDate(사용 시작 시간: GregorianCalendar 생성자를 위한 매개변수 받아오기)
+					 * [9]: int year
+					 * [10]: int month
+					 * [11]: int dayOfMonth
+					 * [12]: int hourOfDay
+					 * [13]: int minute
+					 */
+					GregorianCalendar checkInDate = new GregorianCalendar(dataIn.readInt(), dataIn.readInt(), dataIn.readInt(), dataIn.readInt(), dataIn.readInt());
+					
+					// 입력받은 값으로 user 입력(체크인)
+					room.get(room.size()-1).checkIn(userName, userNo, userRoomNo, checkInDate);
+				}
+			} // finish while
+		} catch (EOFException eofe) {
+			return;
 		}
 	}
-	
-	// 여기부터 메소드
 	
 	// 방을 생성하는 메소드 createRoom
 	public void createRoom(String roomName, int occupancy, int chargePerHour, int surcharge) throws Exception {
 		if((occupancy > 0) && (chargePerHour >= 0) && (surcharge >= 0)) {
 			room.add(new Room(roomName, occupancy, chargePerHour, surcharge));
 		} else throw new Exception("입력하신 방을 생성할 수 없습니다.");
-	}
-
+		
+	}	
+	
 	
 	// 여러 개의 방을 생성하는 메소드 createRooms(수정)
 	public void createRooms(int howManySameRoom, String roomName, int occupancy, int chargePerHour, int surcharge) throws Exception {
@@ -80,7 +82,7 @@ public class Admin {
 	}
 	
 	
-	// deleteRoom()은 아예 처음부터 다시 만들자
+	// 방 삭제 메소드
 	public void deleteRoom(int deleteRoomNo) throws IndexOutOfBoundsException {
 		room.remove(deleteRoomNo);
 	}
@@ -124,10 +126,10 @@ public class Admin {
 	
 	// checkIn & out
 	public void checkIn(String userName, String userNo, int roomNo) throws Exception {
-//		room[roomNo].checkIn(userName, userNo, roomNo);		// 기존
-		room.get(roomNo).checkIn(userName, userNo, roomNo);	// 변경
+		room.get(roomNo).checkIn(userName, userNo, roomNo);
 	}
-		    
+	
+	    
 
 	// checkOut()(수정)
 	public int checkOut(String userName, String userNo) throws Exception, IndexOutOfBoundsException {
@@ -156,9 +158,8 @@ public class Admin {
 	} // finish checkOut()
 
 	
-	/* 방청소 관련 메소드 */
 	
-	// 청소할 방 탐색 후 반환
+	// findRoomsToClean()(수정)
 	public ArrayList<Boolean> findRoomsToClean() {
 		ArrayList<Boolean> dirtyRoom = new ArrayList<Boolean>();
 		
@@ -171,9 +172,10 @@ public class Admin {
 		return dirtyRoom;						// roomsToClean 배열 반환
 	}
 	
+	
 	// 방 청소 메소드(수정)
 	public void cleanRoom(int roomNo) throws IndexOutOfBoundsException {
-		room.get(roomNo).setClean(true);
+		room.get(roomNo).cleanRoom();
 	}
 	
 	// lastRoomNumber에 대한 getter 메소드
@@ -182,17 +184,7 @@ public class Admin {
 	}
 	
 	
-	/* income관리 메소드 */
-	
-	// month월 day일의 income ArrayList index 반환용
-	public int dateCalc(int month, int day) throws Exception {
-		if ((month >= 0 && month <= 11) && (day >= 0 && day <= 30)) {
-			return (month * 31) + day;
-		} else throw new Exception("잘못된 값을 입력하였습니다.");
-	}
-	
-	
-	// month월 day의 수입 반환
+	// income관리 메소드
 	public int getDailyIncome(int month, int day) throws Exception, IndexOutOfBoundsException {
 		if (!income.isEmpty()) {
 			return income.get(dateCalc(month, day));	// 수정
@@ -200,14 +192,13 @@ public class Admin {
 		else throw new Exception("수입이 없습니다.");
 	}
 	
-	// month월 day일의 수입에 money를 더함
 	public void addDailyIncome(int month, int day, int money) throws Exception, IndexOutOfBoundsException {
 		// income 배열이 존재할 경우
 		if (!income.isEmpty()) {
 			int date = dateCalc(month, day);
 			income.set(date, income.get(date) + money);
 		}
-		// income이 없을 경우 익셉션 발생 방지를 위해, 초기 1번만 수행
+		// income이 없을 경우 익셉션 발생 방지를 위해
 		else {
 			for (int i = 0; i < 12*31; i++) {
 				income.add(0);
@@ -216,7 +207,6 @@ public class Admin {
 		}
 	}
 	
-	// month월의 수입을 모두 더해 반환
 	public int getMonthlyIncome(int month) throws Exception, IndexOutOfBoundsException {
 		if (!income.isEmpty()) {
 			int sum = 0;
@@ -226,7 +216,20 @@ public class Admin {
 			return sum;
 		}
 		else throw new Exception("수입이 없습니다.");
+		
 	}
 	
+	
+	public int dateCalc(int month, int day) throws Exception {
+		if ((month >= 0 && month <= 11) && (day >= 0 && day <= 30)) {
+			return (month * 31) + day;
+		} else throw new Exception("잘못된 값을 입력하였습니다.");
+	}
+	
+	// room 데이터필드 출력, DataOutputStream은 UI에서 생성 후 넘어옴
+	void writeRoomInfos(DataOutputStream dataOut) throws Exception {
+		for (int i = 0; i < room.size(); i++)
+			room.get(i).writeRoomInfo(dataOut);
+	}
 	
 } // finish Admin
