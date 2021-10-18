@@ -250,21 +250,18 @@ public class Room {
 		}
 	}
 	
-	@Override
+	@Override // User 비교
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Room)) {
 			return false;
 		} 
 		else {
-			Room room = (Room) obj;
-			if (room.getOccupancy() == this.occupancy) {
-				return true;
-			}
-			User user = room.getUser();
+			User user = ((Room) obj).getUser();
 			if (user != null) {
-				if(user.getUserName().equals(this.user.getUserName()) && user.getUserNo().equals(this.user.getUserNo())) {
+				if (user.getUserName().equals(this.user.getUserName()) && user.getUserNo().equals(this.user.getUserNo())) {
 					return true;
 				} else return false;
+				
 			} else return false;
 		}
 	}

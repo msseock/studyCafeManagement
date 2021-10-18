@@ -42,47 +42,6 @@ public class UI {
 	                            System.out.print("이용할 좌석이 몇인용 좌석인지 입력하세요: ");
 	                            int size = sc.nextInt();
 		                            
-//	                            /* 수정 */
-//	                            // 이용 가능한 방 번호들 Integer ArrayList로 받아와서 출력
-//	                            ArrayList<Integer> available = admin.searchAvailableRoom(size);
-//	                            for (int roomNo: available) {
-//                                	Room currentAvailableRoom = admin.getRoom(roomNo);
-//                                	System.out.println(roomNo + "번: " + currentAvailableRoom.getRoomName());
-//                                    System.out.println("시간당 요금: " + currentAvailableRoom.getChargePerHour());
-//                                    System.out.println("10분당 추가요금: " + currentAvailableRoom.getSurcharge());
-//                                    System.out.println();
-//	                            }
-//	                            
-//	                            if (!available.isEmpty()) {
-//	                            	System.out.println("사용 가능합니다.");
-//	                        		
-//		                            // 좌석 선택
-//		                            System.out.print("좌석 번호를 선택해주세요: ");
-//		                            int roomNo = sc.nextInt();
-//		                            
-//		                            // 사용자가 입력한 좌석 번호가 배정 불가능한 경우
-//		                            if (roomNo > admin.getLastRoomNumber()) {
-//		                            	System.out.println(roomNo + "번 좌석은 없습니다.");
-//		                            	break;
-//		                            }
-//		                            else if (admin.getRoom(roomNo).getOccupancy() != size) {
-//		                            	System.out.println("해당 번호의 좌석은 " + size + "인석이 아닙니다.");
-//		                            	break;
-//		                            }
-//		                            
-//		                            // 정보 입력받기
-//		                            System.out.print("이름: ");
-//		                            String userName = sc.next();
-//		                            System.out.print("전화번호: ");
-//		                            String userNo = sc.next();
-//		
-//		                            // 입력받은 정보로 User 객체 만들고, 체크인하기
-//		                            admin.checkIn(userName, userNo, roomNo);
-//	                            } else System.out.println("사용 가능한 방이 없습니다.");
-	                            
-	                            
-	                            
-	                            /* 기존 */
 	                            // 이용 가능여부 boolean ArrayList로 받아오기	
 	                            ArrayList<Boolean> available = admin.searchAvailableRoom(size);
 	                            int lastRoomNumber = admin.getLastRoomNumber(), falseCount = 0;

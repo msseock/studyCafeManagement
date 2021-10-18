@@ -99,22 +99,8 @@ public class Admin {
 	
 
     // 정원이 people인 방 중에서 사용 가능한 방을 출력하는 메소드(수정)
-	public ArrayList<Boolean> searchAvailableRoom(int occupancy) throws Exception { // 기존
-//	public ArrayList<Integer> searchAvailableRoom(int occupancy) throws Exception {	// 수정
+	public ArrayList<Boolean> searchAvailableRoom(int occupancy) throws Exception {
 
-//		/* 수정 */
-//		ArrayList<Integer> available = new ArrayList<Integer>();
-//		Room roomToFind = new Room("", occupancy, 0, 0);
-//		int lastIndex = room.lastIndexOf(roomToFind), index;
-//		ArrayList<Room> subRoom;
-//		for (int i = 0; i < lastIndex; i = index + 1) {
-//			subRoom = (ArrayList<Room>)room.subList(i, lastIndex+1);
-//			index = subRoom.indexOf(roomToFind);
-//			available.add(index);
-//		}
-//		return available;
-		
-		/* 기존 */
 		ArrayList<Boolean> available = new ArrayList<Boolean>();
 		// 사용 가능한 방이 있는지 탐색
 		for(Room currentRoom: room) {			
