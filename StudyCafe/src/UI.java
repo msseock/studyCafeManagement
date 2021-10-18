@@ -14,11 +14,14 @@ public class UI {
         
     	try {
     		// 파일 입력받기(while문 안으로 들어가면 안됨)
-        	File file = new File("./roomData.dat");
-        	file.createNewFile();
-        	DataInputStream in = null;
-        	in = new DataInputStream(new FileInputStream(file));
-        	admin = new Admin(in);
+        	File roomData = new File("./roomData.dat");
+        	roomData.createNewFile();
+        	File incomeData = new File("./incomeData.dat");
+        	incomeData.createNewFile();
+        	DataInputStream in = null, in2 = null;
+        	in = new DataInputStream(new FileInputStream(roomData));
+        	in2 = new DataInputStream(new FileInputStream(incomeData));
+        	admin = new Admin(in, in2);
         	
         	// 여기부터 while문 범위
         	while (!exit) {
@@ -38,12 +41,52 @@ public class UI {
 	                            // 몇인용 좌석?
 	                            System.out.print("이용할 좌석이 몇인용 좌석인지 입력하세요: ");
 	                            int size = sc.nextInt();
-	                            int falseCount = 0;
-	
-	                            // 이용 가능여부 boolean ArrayList로 받아오기
-	                            ArrayList<Boolean> available = admin.searchAvailableRoom(size);
+		                            
+//	                            /* 수정 */
+//	                            // 이용 가능한 방 번호들 Integer ArrayList로 받아와서 출력
+//	                            ArrayList<Integer> available = admin.searchAvailableRoom(size);
+//	                            for (int roomNo: available) {
+//                                	Room currentAvailableRoom = admin.getRoom(roomNo);
+//                                	System.out.println(roomNo + "번: " + currentAvailableRoom.getRoomName());
+//                                    System.out.println("시간당 요금: " + currentAvailableRoom.getChargePerHour());
+//                                    System.out.println("10분당 추가요금: " + currentAvailableRoom.getSurcharge());
+//                                    System.out.println();
+//	                            }
+//	                            
+//	                            if (!available.isEmpty()) {
+//	                            	System.out.println("사용 가능합니다.");
+//	                        		
+//		                            // 좌석 선택
+//		                            System.out.print("좌석 번호를 선택해주세요: ");
+//		                            int roomNo = sc.nextInt();
+//		                            
+//		                            // 사용자가 입력한 좌석 번호가 배정 불가능한 경우
+//		                            if (roomNo > admin.getLastRoomNumber()) {
+//		                            	System.out.println(roomNo + "번 좌석은 없습니다.");
+//		                            	break;
+//		                            }
+//		                            else if (admin.getRoom(roomNo).getOccupancy() != size) {
+//		                            	System.out.println("해당 번호의 좌석은 " + size + "인석이 아닙니다.");
+//		                            	break;
+//		                            }
+//		                            
+//		                            // 정보 입력받기
+//		                            System.out.print("이름: ");
+//		                            String userName = sc.next();
+//		                            System.out.print("전화번호: ");
+//		                            String userNo = sc.next();
+//		
+//		                            // 입력받은 정보로 User 객체 만들고, 체크인하기
+//		                            admin.checkIn(userName, userNo, roomNo);
+//	                            } else System.out.println("사용 가능한 방이 없습니다.");
 	                            
-	                            for (int i = 0; i < admin.getLastRoomNumber(); i++) {
+	                            
+	                            
+	                            /* 기존 */
+	                            // 이용 가능여부 boolean ArrayList로 받아오기	
+	                            ArrayList<Boolean> available = admin.searchAvailableRoom(size);
+	                            int lastRoomNumber = admin.getLastRoomNumber(), falseCount = 0;
+	                            for (int i = 0; i < lastRoomNumber; i++) {
 	                            	// 이용 가능한 방이라면 정보 출력
 	                                if (available.get(i)) {
 	                                	Room currentAvailableRoom = admin.getRoom(i);
@@ -59,7 +102,7 @@ public class UI {
 	                            }
 	                            
 	                            // 사용 가능한 방이 있는 경우
-	                            if (falseCount != admin.getLastRoomNumber()) {
+	                            if (falseCount != lastRoomNumber) {
 	                            	System.out.println("사용 가능합니다.");
 		
 		                            // 좌석 선택
@@ -67,7 +110,7 @@ public class UI {
 		                            int roomNo = sc.nextInt();
 		                            
 		                            // 사용자가 입력한 좌석 번호가 배정 불가능한 경우
-		                            if (roomNo > admin.getLastRoomNumber()) {
+		                            if (roomNo > lastRoomNumber) {
 		                            	System.out.println(roomNo + "번 좌석은 없습니다.");
 		                            	break;
 		                            }
@@ -303,10 +346,13 @@ public class UI {
         	
         in.close();
         
-        // 파일로 출력
+        // 파일 출력
         DataOutputStream out = new DataOutputStream(new FileOutputStream("./roomData.dat"));
         admin.writeRoomInfos(out);
+        DataOutputStream out2 = new DataOutputStream(new FileOutputStream("./incomeData.dat"));
+        admin.writeIncomeInfo(out2);
         out.close();
+        out2.close();
     	// finish I/O try
         } catch (FileNotFoundException fnfe) {
 			System.out.println("ERROR: File not found");

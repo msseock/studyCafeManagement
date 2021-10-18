@@ -27,6 +27,13 @@ public class Room {
 		empty = true;							// 비어있음
 		clean = true;							// 기본값으로 clean을 0으로 설정
 	}
+	
+	public Room(String userName, String userNo) {
+		user = new User(userName, userNo);
+		occupancy = 0;
+		empty = false;
+		clean = false;
+	}
 
 	
 	// 체크인 메소드
@@ -112,29 +119,7 @@ public class Room {
 	public void resetCheckInTime() {
 		this.checkInDate = null;
 	}
-	
-	
-//	// pay 메소드(checkOut에 합병)
-//	public int pay() {
-//		long totalMinute = checkOutTime - checkInTime;
-//		checkInTime = checkOutTime = 0;						// 계산 후 0으로 초기화
-//		totalMinute = totalMinute / (1000 * 60);			// 총사용시간 n분 계산
-//		
-//		
-//		int hour = ((int)totalMinute / 60) > 0 ? ((int)totalMinute / 60) : 1;	// 시간 계산(기본 1시간)
-//		int minute = (int)totalMinute % 60;					// 몇분인지
-//		
-//		
-//		int charge = 0;
-//		charge += hour  * chargePerHour;			// 시간 단위 돈 계산
-//		if (totalMinute > 60) {
-//			charge += minute / 10 * surcharge;		// 10분당 추가 요금 계산
-//		}
-//		
-//		
-//		return charge;
-//	}
-	
+
 	
 	// users배열에 대한 getter 메소드
 	public User getUser() {
@@ -188,24 +173,6 @@ public class Room {
 		this.surcharge = surcharge;
 	}
 
-	
-//	// userCount에 대한 getter, setter 메소드(조정 메소드), add 메소드
-//	public int getUserCount() {
-//		return userCount;
-//	}
-//	
-//	public void setUserCount(int userCount) throws Exception {
-//		if (userCount < occupancy) {
-//			this.userCount = userCount;
-//		}
-//		else throw new Exception("userCount가 정원을 초과했습니다.");
-//	}
-//	
-//	public void addUserCount(int toAdd) throws Exception {
-//		if (toAdd + userCount <= occupancy) {
-//			userCount += toAdd;
-//		} else throw new Exception("userCount가 정원을 초과했습니다.");
-//	}
 	
 	// available 메소드
 	public boolean available() {
@@ -280,6 +247,25 @@ public class Room {
 			dataOut.writeInt(checkInDate.get(Calendar.DATE));
 			dataOut.writeInt(checkInDate.get(Calendar.HOUR_OF_DAY));
 			dataOut.writeInt(checkInDate.get(Calendar.MINUTE));
+		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Room)) {
+			return false;
+		} 
+		else {
+			Room room = (Room) obj;
+			if (room.getOccupancy() == this.occupancy) {
+				return true;
+			}
+			User user = room.getUser();
+			if (user != null) {
+				if(user.getUserName().equals(this.user.getUserName()) && user.getUserNo().equals(this.user.getUserNo())) {
+					return true;
+				} else return false;
+			} else return false;
 		}
 	}
 	

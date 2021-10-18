@@ -14,6 +14,11 @@ public class User {
 		this.roomNo = roomNo;		// 사용하는 방 설정
 	}
 	
+	User(String userName, String userNo) {
+		this.userName = userName;
+		this.userNo = userNo;
+	}
+	
 	// userName에 대한 getter, setter 메소드
 	public String getUserName() {
 		return userName;
