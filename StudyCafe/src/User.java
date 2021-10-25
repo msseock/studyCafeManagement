@@ -1,5 +1,5 @@
 
-public class User {
+public class User implements java.io.Serializable  {
 	// 필드
 	private String userName;	// 사용자 이름. 입실 시 사용자 이름 입력받아서 사용
 	private String userNo;		// 사용자 번호. 사용자의 전화번호 입력받아서 사용

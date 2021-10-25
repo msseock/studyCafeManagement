@@ -2,17 +2,23 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.io.*;
 
-public class Admin {
+public class Admin implements java.io.Serializable {
 	// 필드
 	private ArrayList<Room> room = new ArrayList<Room>();
-	private ArrayList<Integer> income = new ArrayList<Integer>();	
+	private ArrayList<Integer> income = new ArrayList<Integer>();
 	
-	// 생성자(for 입력)
+	Admin() {
+		
+	}
+	
+	
+	// 생성자(DataInputStream ver.)
 	Admin(DataInputStream dataIn, DataInputStream dataIn2) throws Exception {
 		// 입력을 위한 변수 선언
 		String roomName, userName, userNo;
 		int occupancy, chargePerHour, surcharge, userRoomNo;
 		boolean empty;
+		
 		// roomData read
 		try {
 			while(true) {
@@ -73,7 +79,27 @@ public class Admin {
 		} catch (EOFException eofe) {
 			System.out.println("income data 입력 완료");
 		}
-	}
+	} // finish Admin()
+	
+	
+	// 생성자(ObjectInputSteam ver.)
+	Admin(ObjectInputStream objectIn, ObjectInputStream objectIn2) throws Exception {
+		ArrayList<Room> rooms = (ArrayList<Room>) objectIn.readObject();
+		ArrayList<Integer> incomeList = (ArrayList<Integer>) objectIn2.readObject();
+		
+		// roomData read
+		int num = rooms.size();
+		for (int i = 0; i < num; i++) {
+			room.add(rooms.get(i));
+		}
+		
+		// incomeData read
+		num = incomeList.size();
+		for (int i = 0; i < num; i++) {
+			income.add(incomeList.get(i));
+		}
+		
+	} // finish Admin()
 	
 	// 방을 생성하는 메소드 createRoom
 	public void createRoom(String roomName, int occupancy, int chargePerHour, int surcharge) throws Exception {
@@ -158,28 +184,6 @@ public class Admin {
 		return pay;
 	 	} else throw new Exception("해당하는 조건에 맞는 user가 존재하지 않습니다.");
 		
-//		/* 기존 */
-//		// userName, userNo와 일치하는 user가 있는지 탐색
-//		boolean found = false;	// 조건에 맞는 roomNo가 있을 때 true로 변환
-//		for(int i = 0; i < room.size(); i++) {
-//			if(room.get(i).isEmpty())	// user가 null이면 continue
-//				continue;
-//			
-//			// room.indexOf(userName, userNo);
-//			User user = room.get(i).getUser();
-//			if (user.getUserName().equals(userName) && user.getUserNo().equals(userNo)) { // userName과 userNo가 모두 일치하는 user가 있는지 검사
-//				found = true;
-//				Room currentRoom = room.get(i);
-//			
-//				pay = currentRoom.checkOut();			// 체크아웃
-//				addDailyIncome(currentRoom.getMonth() - 1, currentRoom.getDay() - 1, pay);	// 요금을 수익에 더하기
-//				currentRoom.resetCheckInTime();	// 체크인 시간 초기화
-//				break;
-//			}
-//		}
-//		if (found) return pay;
-//		else throw new Exception("해당하는 조건에 맞는 user가 존재하지 않습니다.");
-		
 	} // finish checkOut()
 
 	
@@ -247,6 +251,10 @@ public class Admin {
 		if ((month >= 0 && month <= 11) && (day >= 0 && day <= 30)) {
 			return (month * 31) + day;
 		} else throw new Exception("잘못된 값을 입력하였습니다.");
+	}
+	
+	public ArrayList<Integer> getIncome() {
+		return income;
 	}
 	
 	// room 데이터필드 출력, DataOutputStream은 UI에서 생성 후 넘어옴

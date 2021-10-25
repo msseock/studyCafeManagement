@@ -13,20 +13,25 @@ public class UI {
         System.out.println("Welcome!");
         
     	try {
-    		// 파일 입력받기(while문 안으로 들어가면 안됨)
-        	File roomData = new File("./roomData.dat");
-        	roomData.createNewFile();
-        	File incomeData = new File("./incomeData.dat");
-        	incomeData.createNewFile();
-        	DataInputStream in = null, in2 = null;
-        	in = new DataInputStream(new FileInputStream(roomData));
-        	in2 = new DataInputStream(new FileInputStream(incomeData));
-        	admin = new Admin(in, in2);
+//    		// 파일 입력받기(DataInputSteam ver.)
+//        	File roomData = new File("./roomData.dat");
+//        	roomData.createNewFile();
+//        	File incomeData = new File("./incomeData.dat");
+//        	incomeData.createNewFile();
+//        	DataInputStream in = null, in2 = null;
+//        	in = new DataInputStream(new FileInputStream(roomData));
+//        	in2 = new DataInputStream(new FileInputStream(incomeData));
+//        	admin = new Admin(in, in2);
         	
-        	// 여기부터 while문 범위
-        	while (!exit) {
-        		try {
-        			System.out.println();
+        	// 파일 입력받기(ObjectInputSteam ver.)    		
+    		ObjectInputStream in3 = new ObjectInputStream(new FileInputStream("./roomData.dat"));
+    		ObjectInputStream in4 = new ObjectInputStream(new FileInputStream("./incomeData.dat"));
+        	admin = new Admin(in3, in4);
+        	
+	    	// 여기부터 while문 범위
+	    	while (!exit) {
+	    		try {
+	    			System.out.println();
 	                System.out.println("1. 사용자 || 2. 관리자 || 3. 종료");
 	                int menuNumber = sc.nextInt();
 	
@@ -295,23 +300,35 @@ public class UI {
 	                        break;
 	                } // finish switch(user || admin || exit)
 	                
-        		} catch (InputMismatchException ime) {
-    	            System.out.println("정수값을 입력해주세요");
-    				sc = new Scanner(System.in); // 재초기화
-    	        } catch (Exception e) {
-    				System.out.println(e.getMessage());
-    	        }
-        	} // finish while (!exit)
-        	
-        in.close();
+	    		} catch (InputMismatchException ime) {
+		            System.out.println("정수값을 입력해주세요");
+					sc = new Scanner(System.in); // 재초기화
+		        } catch (Exception e) {
+					System.out.println(e.getMessage());
+		        }
+	    	} // finish while (!exit)
+	    	
+	    	// inputStream
+	    	in3.close();
+	    	in4.close();
         
-        // 파일 출력
-        DataOutputStream out = new DataOutputStream(new FileOutputStream("./roomData.dat"));
-        admin.writeRoomInfos(out);
-        DataOutputStream out2 = new DataOutputStream(new FileOutputStream("./incomeData.dat"));
-        admin.writeIncomeInfo(out2);
-        out.close();
-        out2.close();
+//	        // 파일 출력(DataOutputStream)
+//	        DataOutputStream out = new DataOutputStream(new FileOutputStream("./roomData.dat"));
+//	        admin.writeRoomInfos(out);
+//	        DataOutputStream out2 = new DataOutputStream(new FileOutputStream("./incomeData.dat"));
+//	        admin.writeIncomeInfo(out2);
+//	        out.close();
+//	        out2.close();
+        
+    		// 파일 출력(ObjectOutputStream)
+	        ObjectOutputStream out3 = new ObjectOutputStream(new FileOutputStream("./roomData.dat"));
+	        out3.writeObject(admin.getRooms());
+	        ObjectOutputStream out4 = new ObjectOutputStream(new FileOutputStream("./incomeData.dat"));
+	        out4.writeObject(admin.getIncome());
+	        out3.close();
+	        out4.close();
+        
+        
     	// finish I/O try
         } catch (FileNotFoundException fnfe) {
 			System.out.println("ERROR: File not found");
