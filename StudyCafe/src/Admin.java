@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.io.*;
 
-public class Admin implements java.io.Serializable {
+public class Admin implements java.io.Serializable {	
 	// 필드
 	private ArrayList<Room> room = new ArrayList<Room>();
 	private ArrayList<Integer> income = new ArrayList<Integer>();
@@ -257,7 +257,7 @@ public class Admin implements java.io.Serializable {
 		return income;
 	}
 	
-	// room 데이터필드 출력, DataOutputStream은 UI에서 생성 후 넘어옴
+	// room 데이터필드 DataOutputStream 출력
 	void writeRoomInfos(DataOutputStream dataOut) throws Exception {
 		for (int i = 0; i < room.size(); i++)
 			room.get(i).writeRoomInfo(dataOut);
@@ -268,4 +268,12 @@ public class Admin implements java.io.Serializable {
 			dataOut.writeInt(income.get(i));
 	}
 	
+	// room 데이터필드 ObjectOutputStream 출력
+	void writeRoomInfos(ObjectOutputStream objectOut) throws Exception {
+		objectOut.writeObject(room);
+	}
+	
+	void writeIncomeInfo(ObjectOutputStream objectOut) throws Exception {
+		objectOut.writeObject(income);
+	}
 } // finish Admin

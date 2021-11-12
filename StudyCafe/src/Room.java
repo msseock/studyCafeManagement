@@ -4,7 +4,7 @@ import java.io.*;
 
 
 
-public class Room implements java.io.Serializable  {
+public class Room implements java.io.Serializable  {	
 	// 필드
 	private String roomName;				// 방 이름
 	private int occupancy;					// 방의 정원(최대인원수)

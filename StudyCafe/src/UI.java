@@ -308,7 +308,7 @@ public class UI {
 		        }
 	    	} // finish while (!exit)
 	    	
-	    	// inputStream
+	    	// inputStream close
 	    	in3.close();
 	    	in4.close();
         
@@ -322,9 +322,9 @@ public class UI {
         
     		// 파일 출력(ObjectOutputStream)
 	        ObjectOutputStream out3 = new ObjectOutputStream(new FileOutputStream("./roomData.dat"));
-	        out3.writeObject(admin.getRooms());
+	        admin.writeRoomInfos(out3);
 	        ObjectOutputStream out4 = new ObjectOutputStream(new FileOutputStream("./incomeData.dat"));
-	        out4.writeObject(admin.getIncome());
+	        admin.writeIncomeInfo(out4);
 	        out3.close();
 	        out4.close();
         
