@@ -4,8 +4,8 @@ import java.io.*;
 
 public class Admin implements java.io.Serializable {	
 	// 필드
-	private ArrayList<Room> room = new ArrayList<Room>();
-	private ArrayList<Integer> income = new ArrayList<Integer>();
+	private static ArrayList<Room> room = new ArrayList<Room>();
+	private static ArrayList<Integer> income = new ArrayList<Integer>();
 	
 	Admin() {
 		
@@ -49,7 +49,7 @@ public class Admin implements java.io.Serializable {
 					* [7]: String user.getUserNo()
 					* [8]: int user.getRoomNo()
 					*/
-					userName = dataIn.readUTF();
+//					userName = dataIn.readUTF();
 					userNo = dataIn.readUTF();
 					userRoomNo = dataIn.readInt();
 					
@@ -64,7 +64,7 @@ public class Admin implements java.io.Serializable {
 					GregorianCalendar checkInDate = new GregorianCalendar(dataIn.readInt(), dataIn.readInt(), dataIn.readInt(), dataIn.readInt(), dataIn.readInt());
 					
 					// 입력받은 값으로 user 입력(체크인)
-					room.get(room.size()-1).checkIn(userName, userNo, userRoomNo, checkInDate);
+					room.get(room.size()-1).checkIn(userNo, userRoomNo, checkInDate);
 				}
 			} // finish while
 		} catch (EOFException eofe) {
@@ -159,20 +159,20 @@ public class Admin implements java.io.Serializable {
 	}
 	
 	// checkIn & out
-	public void checkIn(String userName, String userNo, int roomNo) throws Exception {
-		room.get(roomNo).checkIn(userName, userNo, roomNo);
+	public void checkIn(String userNo, int roomNo) throws Exception {
+		room.get(roomNo).checkIn(userNo, roomNo);
 	}
 	
 	    
 
 	// checkOut()(수정)
-	public int checkOut(String userName, String userNo) throws Exception, IndexOutOfBoundsException {
+	public int checkOut(String userNo) throws Exception, IndexOutOfBoundsException {
 		int pay = 0;
 		
 		/* 수정 */
 
 		// userName, userNo와 일치하는 user가 있는지 탐색
-		int roomNo = room.indexOf(new Room(userName, userNo));
+		int roomNo = room.indexOf(new Room(userNo));
 		
 		if (roomNo != -1) {
 	   	Room currentRoom = room.get(roomNo);	// User가 있는 방을 찾아서 currentRoom으로
@@ -182,7 +182,8 @@ public class Admin implements java.io.Serializable {
 		currentRoom.resetCheckInTime();
 		
 		return pay;
-	 	} else throw new Exception("해당하는 조건에 맞는 user가 존재하지 않습니다.");
+//	 	} else throw new Exception("해당하는 조건에 맞는 user가 존재하지 않습니다."); // 기존 CLI 버전
+ 		} else return -1; // GUI에 맞춰 -1 반환하도록 설계
 		
 	} // finish checkOut()
 

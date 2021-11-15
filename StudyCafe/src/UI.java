@@ -84,13 +84,13 @@ public class UI {
 		                            }
 		                            
 		                            // 정보 입력받기
-		                            System.out.print("이름: ");
-		                            String userName = sc.next();
+//		                            System.out.print("이름: ");
+//		                            String userName = sc.next();
 		                            System.out.print("전화번호: ");
 		                            String userNo = sc.next();
 		
 		                            // 입력받은 정보로 User 객체 만들고, 체크인하기
-		                            admin.checkIn(userName, userNo, roomNo);
+		                            admin.checkIn(userNo, roomNo);
 	                            }
 	                            // 사용 가능한 방이 하나도 없는 경우
 	                            else {
@@ -107,7 +107,7 @@ public class UI {
 	                            String userNo = sc.next();
 	
 	                            // 입력받은 정보와 일치하는 사용자 찾아서 해당하는 room에서 checkOut() => 가격 출력
-	                            System.out.println("이용 금액: " + admin.checkOut(userName, userNo) + "원");
+	                            System.out.println("이용 금액: " + admin.checkOut(userNo) + "원");
 	                            
 	                            break; // finish 1. 사용자 > 2. 이용 완료(체크아웃)
 	                            
@@ -208,9 +208,8 @@ public class UI {
 	                                    	System.out.println("null");
 	                                    else {								// 방이 사용중인 경우
 	                                		User currentUser = room.getUser();
-	                                    	String userName = currentUser.getUserName();
-	                                    	String userNo = currentUser.getUserNo();
-	                                        System.out.println(userName + ", " + userNo);	// user 출력
+//	                                    	String userName = currentUser.getUserName();
+	                                        System.out.println(currentUser.getUserNo());	// user 출력
 	                                    }
 	                                }
 	                                else continue;

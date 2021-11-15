@@ -28,8 +28,8 @@ public class Room implements java.io.Serializable  {
 		clean = true;							// 기본값으로 clean을 0으로 설정
 	}
 	
-	public Room(String userName, String userNo) {
-		user = new User(userName, userNo);
+	public Room(String userNo) {
+		user = new User(userNo);
 		occupancy = 0;
 		empty = false;
 		clean = false;
@@ -37,22 +37,22 @@ public class Room implements java.io.Serializable  {
 
 	
 	// 체크인 메소드
-	public void checkIn(String userName, String userNo, int roomNo) throws Exception {
+	public void checkIn(String userNo, int roomNo) throws Exception {
 		if (empty) {
 				checkInDate = new GregorianCalendar();		// 체크인 시간 기록
 				
-				user = new User(userName, userNo, roomNo);	// user객체 추가
+				user = new User(userNo, roomNo);	// user객체 추가
 				empty = false;
 				clean = false;
 		} else throw new Exception("이용 가능 정원을 초과했습니다.");	
 	} // finish checkIn()
 	
 	// override
-	public void checkIn(String userName, String userNo, int roomNo, Calendar checkInDate) throws Exception {
+	public void checkIn(String userNo, int roomNo, Calendar checkInDate) throws Exception {
 		if (empty) {
 				this.checkInDate = checkInDate;		// 체크인 시간 기록
 				
-				user = new User(userName, userNo, roomNo);	// user객체 추가
+				user = new User(userNo, roomNo);	// user객체 추가
 				empty = false;	// empty를 false로
 		} else throw new Exception("이용 가능 정원을 초과했습니다.");	
 	} // finish checkIn()
@@ -230,7 +230,6 @@ public class Room implements java.io.Serializable  {
 			 * [7]: String user.getUserNo()
 			 * [8]: int user.getRoomNo()
 			 */
-			dataOut.writeUTF(user.getUserName());
 			dataOut.writeUTF(user.getUserNo());
 			dataOut.writeInt(user.getRoomNo());
 
@@ -258,7 +257,7 @@ public class Room implements java.io.Serializable  {
 		else {
 			User user = ((Room) obj).getUser();
 			if (user != null) {
-				if (user.getUserName().equals(this.user.getUserName()) && user.getUserNo().equals(this.user.getUserNo())) {
+				if (user.getUserNo().equals(this.user.getUserNo())) {
 					return true;
 				} else return false;
 				

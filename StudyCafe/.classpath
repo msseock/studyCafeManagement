@@ -6,5 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="GUI"/>
+	<classpathentry kind="src" path="user"/>
+	<classpathentry kind="src" path="Admin"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
