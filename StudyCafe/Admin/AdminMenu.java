@@ -3,22 +3,24 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class AdminMenu extends JFrame implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4822288062243815069L;
 	// 버튼 참조 변수 선언
 	private JButton btnManageRoom;
 	private JButton btnCheckIncome;
 	private JButton btnRefund;
 	private JButton btnBackToMain;
-	private Admin admin;
+	private Admin admin = new Admin();
 
 	
-	public AdminMenu(Admin admin) { // 컴포넌트 생성 추가
+	public AdminMenu() { // 컴포넌트 생성 추가
 		this.setTitle("Admin");
 		this.setPreferredSize(new Dimension(300, 200));
 		this.setLocation(100, 150);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
-		this.admin = admin;
-		
+				
 		Container contentPane = this.getContentPane();
 		
 		// Border NORTH: 안내문 패널 생성
@@ -60,19 +62,19 @@ public class AdminMenu extends JFrame implements ActionListener {
 		if (e.getSource() == btnManageRoom) {
 			System.out.println("방관리 버튼 이벤트 실행");
 			
-			new ManageRoom(admin);
+			new ManageRoom();
 			dispose();
 			
 		} else if (e.getSource() == btnCheckIncome) {
 			System.out.println("수익 조회 버튼 이벤트 실행");
 			
-			new CheckIncome(admin);
+			new CheckIncome();
 			dispose();
 			
 		} else if (e.getSource() == btnRefund) {
 			System.out.println("환불 버튼 이벤트 실행");
 			
-			new Refund(admin);
+			new Refund();
 			dispose();
 
 		} else if (e.getSource() == btnBackToMain) {

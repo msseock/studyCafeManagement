@@ -3,6 +3,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class MainMenu extends JFrame implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6511106324556262423L;
 	// 버튼 참조 변수 선언
 	private JButton btnUserMenu;
 	private JButton btnAdminMenu;
@@ -51,14 +55,14 @@ public class MainMenu extends JFrame implements ActionListener {
 		if (e.getSource() == btnUserMenu) {
 			System.out.println("사용자 버튼 이벤트");
 			
-			new UserMenu(admin);
+			new UserMenu();
 			this.dispose();
 
 			
 		} else if (e.getSource() == btnAdminMenu) {
 			System.out.println("관리자 버튼 이벤트");
 			
-			new AdminMenu(admin);
+			new ManageRoom();
 			dispose();
 			
 		}

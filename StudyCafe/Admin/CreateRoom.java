@@ -4,12 +4,14 @@ import javax.swing.*;
 
 public class CreateRoom extends JFrame implements ActionListener {
 	// 이벤트 연결을 위한 참조 변수 선언
-	private JButton btnCreate;
 	private JTextField roomNameField;
 	private JTextField occupancyField;
 	private JTextField chargePerHourField;
 	private JTextField surchargeField;
 	private JTextField howManySameRoomField;
+	private JButton btnCreate;
+	private JButton btnCancel;
+	private Admin admin = new Admin();
 	
 	public CreateRoom() { // 컴포넌트 생성 추가
 		this.setTitle("방 생성");
@@ -104,12 +106,36 @@ public class CreateRoom extends JFrame implements ActionListener {
 	// 이벤트 처리 함수
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == btnCreate) {
-			System.out.println("생성 버튼 이벤트 실행");
-			
-			// JTextField.getText()와 Admin의 CreateRoom() 이용해서 방 생성 구현 예정
-			new DefaultAlert("방 생성 완료", "방 생성이 완료되었습니다", "확인");
-			this.dispose();
+		try {
+			// 생성 버튼 클릭 시
+			if (e.getSource() == btnCreate) {
+				System.out.println("생성 버튼 이벤트 실행");
+				
+				// JTextField.getText()와 Admin의 CreateRoom() 이용해서 방 생성 구현 예정
+				String roomName = roomNameField.getText();
+				int occupancy = Integer.parseInt(occupancyField.getText());
+				int chargePerHour = Integer.parseInt(chargePerHourField.getText());
+				int surcharge = Integer.parseInt(surchargeField.getText());
+				int howManySameRoom = Integer.parseInt(howManySameRoomField.getText());
+				
+				admin.createRooms(howManySameRoom, roomName, occupancy, chargePerHour, surcharge);
+				
+				this.dispose();
+				new ManageRoom();
+				new DefaultAlert("방 생성 완료", "방 생성이 완료되었습니다", "확인");
+			}
+			// 완료 버튼 클릭 시
+			else if (e.getSource() == btnCancel) {
+				new ManageRoom();
+				this.dispose();
+			}
+		} catch (NullPointerException npe) {
+			new DefaultAlert("방 생성 오류", "생성하려는 방의 정보를 모두 입력해주세요", "확인");
+		} catch (NumberFormatException nfe) {
+			new DefaultAlert("방 생성 오류", "정원, 시간당 요금, 추가요금, 동일유형 생성에는 숫자를 입력해주세요", "확인");
+		} catch (Exception excpt) {
+			new DefaultAlert("방 생성 오류", "방을 생성할 수 없습니다.", "확인");
 		}
+		
 	}
 }

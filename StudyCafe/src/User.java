@@ -1,5 +1,9 @@
 
 public class User implements java.io.Serializable  {	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3978459066621236948L;
 	// 필드
 //	private String userName;	// 사용자 이름. 입실 시 사용자 이름 입력받아서 사용
 	private String userNo;		// 사용자 번호. 사용자의 전화번호 입력받아서 사용
@@ -11,11 +15,11 @@ public class User implements java.io.Serializable  {
 	User(String userNo, int roomNo){
 //		this.userName = userName;	// 사용자 이름 설정
 		this.userNo = userNo;		// 사용자 번호(전화번호) 설정
-		this.roomNo = roomNo;		// 사용하는 방 설정
+		this.roomNo = roomNo;
 	}
 	
+	// 검색을 위한 User 생성
 	User(String userNo) {
-//		this.userName = userName;
 		this.userNo = userNo;
 	}
 	

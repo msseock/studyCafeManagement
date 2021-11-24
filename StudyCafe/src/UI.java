@@ -107,7 +107,7 @@ public class UI {
 	                            String userNo = sc.next();
 	
 	                            // 입력받은 정보와 일치하는 사용자 찾아서 해당하는 room에서 checkOut() => 가격 출력
-	                            System.out.println("이용 금액: " + admin.checkOut(userNo) + "원");
+	                            System.out.println("이용 금액: " + admin.showCharge(userNo) + "원");
 	                            
 	                            break; // finish 1. 사용자 > 2. 이용 완료(체크아웃)
 	                            

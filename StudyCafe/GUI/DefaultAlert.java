@@ -3,6 +3,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class DefaultAlert extends JFrame implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7016348848401271681L;
 	// 버튼 참조 변수 선언
 	private JButton button;
 

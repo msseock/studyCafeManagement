@@ -3,6 +3,10 @@ import java.util.GregorianCalendar;
 import java.io.*;
 
 public class Admin implements java.io.Serializable {	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1044342505298863682L;
 	// 필드
 	private static ArrayList<Room> room = new ArrayList<Room>();
 	private static ArrayList<Integer> income = new ArrayList<Integer>();
@@ -15,7 +19,7 @@ public class Admin implements java.io.Serializable {
 	// 생성자(DataInputStream ver.)
 	Admin(DataInputStream dataIn, DataInputStream dataIn2) throws Exception {
 		// 입력을 위한 변수 선언
-		String roomName, userName, userNo;
+		String roomName, userNo;
 		int occupancy, chargePerHour, surcharge, userRoomNo;
 		boolean empty;
 		
@@ -104,7 +108,7 @@ public class Admin implements java.io.Serializable {
 	// 방을 생성하는 메소드 createRoom
 	public void createRoom(String roomName, int occupancy, int chargePerHour, int surcharge) throws Exception {
 		if((occupancy > 0) && (chargePerHour >= 0) && (surcharge >= 0)) {
-			room.add(new Room(roomName, occupancy, chargePerHour, surcharge));
+			room.add(new Room(roomName,occupancy, chargePerHour, surcharge));
 		} else throw new Exception("입력하신 방을 생성할 수 없습니다.");
 		
 	}	
@@ -159,32 +163,32 @@ public class Admin implements java.io.Serializable {
 	}
 	
 	// checkIn & out
-	public void checkIn(String userNo, int roomNo) throws Exception {
-		room.get(roomNo).checkIn(userNo, roomNo);
+	public int checkIn(String userNo, int roomNo) throws Exception {
+		int result = room.get(roomNo).checkIn(userNo, roomNo);
+		return result;
+	}
+	
+	
+	// 해당 방의 함수 호출 시간의 이용금액 리턴 
+	public int showCharge(String userNo) {
+		int charge = 0;
+		// userNo와 일치하는 user가 있는지 탐색
+		int roomNo = room.indexOf(new Room(userNo));
+		
+		if (roomNo != -1) {
+			Room currentRoom = room.get(roomNo);	// User가 있는 방을 찾아서 currentRoom으로
+			charge = currentRoom.calcCharge();
+			return charge;
+		} else return -1;
 	}
 	
 	    
 
-	// checkOut()(수정)
-	public int checkOut(String userNo) throws Exception, IndexOutOfBoundsException {
-		int pay = 0;
+	// checkOut()
+	public int checkOut(String userNo) throws Exception, IndexOutOfBoundsException {		
+	   	Room currentRoom = room.get(room.indexOf(new Room(userNo)));	// User가 있는 방을 찾아서 currentRoom으로
 		
-		/* 수정 */
-
-		// userName, userNo와 일치하는 user가 있는지 탐색
-		int roomNo = room.indexOf(new Room(userNo));
-		
-		if (roomNo != -1) {
-	   	Room currentRoom = room.get(roomNo);	// User가 있는 방을 찾아서 currentRoom으로
-	   	
-	   	pay = currentRoom.checkOut();			// 체크아웃
-		addDailyIncome(currentRoom.getMonth() - 1, currentRoom.getDay() - 1, pay);	// 요금을 수익에 더하기
-		currentRoom.resetCheckInTime();
-		
-		return pay;
-//	 	} else throw new Exception("해당하는 조건에 맞는 user가 존재하지 않습니다."); // 기존 CLI 버전
- 		} else return -1; // GUI에 맞춰 -1 반환하도록 설계
-		
+		return currentRoom.checkOut();
 	} // finish checkOut()
 
 	
@@ -228,13 +232,27 @@ public class Admin implements java.io.Serializable {
 			int date = dateCalc(month, day);
 			income.set(date, income.get(date) + money);
 		}
-		// income이 없을 경우 익셉션 발생 방지를 위해
+		// income이 없을 경우 익셉션 발생 방지
 		else {
 			for (int i = 0; i < 12*31; i++) {
 				income.add(0);
 			}
 			income.set(dateCalc(month, day), money);
 		}
+	}
+	
+	public int subtractDailyIncome(int month, int day, int money) throws Exception {
+		// income 배열이 존재할 경우
+		if (!income.isEmpty()) {
+			int date = dateCalc(month, day);
+			// 빼는 금액이 원래 금액보다 큰지 검사
+			if (income.get(date) - money >= 0) {
+				income.set(date, income.get(date) - money);
+				return 0;
+			} else return -1;
+		}
+		// income이 없을 경우 익셉션 발생 방지
+		else return -2;
 	}
 	
 	public int getMonthlyIncome(int month) throws Exception, IndexOutOfBoundsException {
@@ -247,7 +265,90 @@ public class Admin implements java.io.Serializable {
 		} else throw new Exception("수입이 없습니다.");
 	}
 	
+	// 기간 입력 수익 조회
+	public ArrayList<Integer> getSelectedIncome(int m1, int d1, int m2, int d2) throws Exception {
+		
+		ArrayList<Integer> incomeArr = new ArrayList<Integer>();
+
+		if (!income.isEmpty()) {
+			
+			// m1/d1 ~ m2/d2
+			if (m1 >= 1 && d1 >= 1 && m2 >= 1 && d2 >= 1) {
+				int date1 = dateCalc(m1-1, d1-1);	// m1/d1
+				int date2 = dateCalc(m2-1, d2-1);	// m2/d2
+				return getIncomeArray(date1, date2);
+				
+			}
+			// m1/d1 ~ 0/0	: m1/d1
+			else if (m1 >= 1 && d1 >= 1 && m2 == 0 && d2 == 0) {
+				int date1 = dateCalc(m1-1, d1-1);	// m1/d1
+				int date2 = dateCalc(m1-1, d1-1);	// m1/d1
+				return getIncomeArray(date1, date2);
+			}
+			// m1/d1 ~ 0/d2	: m1/d1 ~ m1/d2
+			else if (m1 >= 1 && d1 >= 1 && m2 == 0 && d2 >= 1) {
+				int date1 = dateCalc(m1-1, d1-1);	// m1/d1
+				int date2 = dateCalc(m1-1, d2-1);	// m1/d2
+				return getIncomeArray(date1, date2);
+
+			}
+			// m1/0 ~ m2/d2	: m1/1 ~ m2/d2
+			else if (m1 >= 1 && d1 == 0 && m2 >= 1 && d2 >= 1) {
+				int date1 = dateCalc(m1-1, 0);		// m1/1
+				int date2 = dateCalc(m2-1, d2-1);	// m2/d2
+				return getIncomeArray(date1, date2);
+
+			}
+			// m1/0 ~ m2/0	: m1/1 ~ m2/31
+			else if (m1 >= 1 && d1 == 0 && m2 >= 1 && d2 == 0) {
+				int date1 = dateCalc(m1-1, 0);	// m1/1
+				int date2 = dateCalc(m2-1, 30);	// m2/31
+				return getIncomeArray(date1, date2);
+
+			}
+			// m1/0 ~ 0/d2	: m1/1 ~ m1/d2
+			else if (m1 >= 1 && d1 == 0 && m2 == 0 && d2 >= 1) {
+				int date1 = dateCalc(m1-1, 0);		// m1/1
+				int date2 = dateCalc(m1-1, d2-1);	// m1/d2
+				return getIncomeArray(date1, date2);
+			}
+			// m1/0 ~ 0/0	: m1/1 ~ m1/31
+			else if (m1 >= 1 && d1 == 0 && m2 == 0 && d2 == 0) {
+				int date1 = dateCalc(m1-1, 0);	// m1/1
+				int date2 = dateCalc(m1-1, 30);	// m1/31
+				return getIncomeArray(date1, date2);
+
+			} else {	 // 범위가 이 위에 이 많은 것들 중에도 없을 만큼 잘못 입력되었을 경우 -1 리턴
+				incomeArr.add(-1);
+				return incomeArr;
+			}
+		} else {	// income 배열이 없는 경우
+			incomeArr.add(-2);
+			return incomeArr;
+		}
+	}
 	
+	// 위 함수에서 중복되는 범위별 수익 배열 만들기를 함수로 구현
+	public ArrayList<Integer> getIncomeArray(int date1, int date2) throws Exception {
+		
+			ArrayList<Integer> incomeArr = new ArrayList<Integer>();
+			int sum = 0;
+			
+			if (date1 <= date2) {
+				for (int i = date1; i <= date2; i++) {
+					incomeArr.add(income.get(i));
+					sum += income.get(i);
+				}
+				incomeArr.add(sum);
+				return incomeArr;
+			} else {
+				incomeArr.add(-1);
+				return incomeArr;
+			}
+	}
+
+	
+	// 0~11월, 0~30일의 수입 배열 인덱스 구하기
 	public int dateCalc(int month, int day) throws Exception {
 		if ((month >= 0 && month <= 11) && (day >= 0 && day <= 30)) {
 			return (month * 31) + day;
